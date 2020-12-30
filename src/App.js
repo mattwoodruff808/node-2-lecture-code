@@ -1,4 +1,5 @@
 import {Component} from 'react';
+import axios from 'axios';
 import Book from './Components/Book';
 import './App.css';
 
@@ -12,6 +13,10 @@ class App extends Component {
     }
   }
 
+  componentDidMount(){
+    this.getBooks();
+  }
+
   handleInputs = (e) => {
     this.setState({
         [e.target.name]: e.target.value
@@ -19,11 +24,25 @@ class App extends Component {
   }
 
   getBooks = () => {
-    //code here
+    axios.get('/api/books')
+      .then(res => {
+        this.setState({books: res.data})
+      })
+      .catch(err => console.log(err));
   }
 
   addBook = () => {
-    //code here
+    const {title, author} = this.state
+
+    axios.post('/api/book', {title: title, author: author})
+      .then(res => {
+        this.setState({
+          books: res.data,
+          title: '',
+          author: ''
+        })
+      })
+      .catch(err => console.log(err));
   }
 
   render(){
@@ -31,9 +50,9 @@ class App extends Component {
       <div className="App">
         <header className="App-header">
           <h1>WR8's Bookshelf</h1>
-          <input value={this.state.title} placeholder='Title' onChange={e => this.handleInputs(e)}/>
-          <input value={this.state.author} placeholder='Author' onChange={e => this.handleInputs(e)}/>
-          <button>Add Book</button>
+          <input value={this.state.title} name='title' placeholder='Title' onChange={e => this.handleInputs(e)}/>
+          <input value={this.state.author} name='author' placeholder='Author' onChange={e => this.handleInputs(e)}/>
+          <button onClick={this.addBook}>Add Book</button>
           {this.state.books.map(book => (
             <Book key={book.id} book={book} getBooksFn={this.getBooks}/>
           ))}

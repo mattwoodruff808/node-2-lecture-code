@@ -1,4 +1,5 @@
 import {Component} from 'react';
+import axios from 'axios';
 
 class Book extends Component {
     constructor(props){
@@ -29,11 +30,22 @@ class Book extends Component {
     }
 
     updateBook = () => {
-        //code here
+        axios.put(`/api/book/${this.props.book.id}`, {title: this.state.title, author: this.state.author})
+            .then(() => {
+                this.props.getBooksFn()
+                this.setState({
+                    title: '',
+                    author: '',
+                    editView: false
+                })
+            })
+            .catch(err => console.log(err));
     }
 
     deleteBook = () => {
-        //code here
+        axios.delete(`/api/book/${this.props.book.id}`)
+            .then(() => this.props.getBooksFn())
+            .catch(err => console.log(err));
     }
 
     render(){
@@ -48,7 +60,7 @@ class Book extends Component {
                         <section>
                             <input value={title} name='title' onChange={e => this.handleInputs(e)}/>
                             <input value={author} name='author' onChange={e => this.handleInputs(e)}/>
-                            <button onClick={this.toggleView}>Submit</button>
+                            <button onClick={this.updateBook}>Submit</button>
                         </section>
                     )
                     : (
@@ -56,7 +68,7 @@ class Book extends Component {
                             <h3>{book.title}</h3>
                             <h4>{book.author}</h4>
                             <button onClick={this.toggleView}>Edit</button>
-                            <button>Delete</button> 
+                            <button onClick={this.deleteBook}>Delete</button> 
                         </section>
                     )}   
             </section>
